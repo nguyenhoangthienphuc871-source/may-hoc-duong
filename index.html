@@ -35,7 +35,17 @@
 <section class="section"><div class="wrap"><div class="about"><div><h2>Về Mây Học Đường</h2><p>Mây Học Đường hướng đến một cửa hàng học đường thân thiện, dễ sử dụng và rõ ràng về thông tin. Danh mục sản phẩm, giá bán và dịch vụ sẽ được cập nhật khi hệ thống quản lý hoàn chỉnh.</p></div><div class="about-art">☁️📚✏️</div></div></div></section>
 </main>
 <footer class="footer"><div class="wrap"><div class="footer-grid"><div><h3>☁ Mây Học Đường</h3><p>Góc nhỏ dành cho học tập, sáng tạo và những nhu cầu thường ngày.</p></div><div><h4>Danh mục</h4><ul><li>Đồ dùng học tập</li><li>Giấy và văn phòng phẩm</li><li>Ăn vặt và giải trí</li></ul></div><div><h4>Thông tin</h4><ul><li>Giới thiệu</li><li>Dịch vụ</li><li>Chính sách và điều khoản</li></ul></div></div><div class="copyright">© 2026 Mây Học Đường. Giao diện đang được phát triển; chưa tiếp nhận thanh toán hoặc đơn hàng thực tế.</div></div></footer>
-<div class="overlay" id="overlay"></div><aside class="drawer" id="drawer" aria-label="Giỏ hàng"><div class="drawer-head"><h2>Giỏ hàng</h2><button class="icon-btn" id="cartClose" aria-label="Đóng">×</button></div><div id="cartItems"></div><div id="cartSummary" class="hidden"><div class="cart-total"><span>Tạm tính</span><span id="cartTotal">0đ</span></div><div class="modal-note">Đây là bản giao diện xem trước. Chức năng đặt hàng, lưu đơn và thanh toán chưa được kết nối với máy chủ, vì vậy giỏ hàng hiện chỉ dùng để thử giao diện.</div></div></aside>
+<div class="overlay" id="overlay"></div><aside class="drawer" id="drawer" aria-label="Giỏ hàng"><div class="drawer-head"><h2>Giỏ hàng</h2><button class="icon-btn" id="cartClose" aria-label="Đóng">×</button></div><div id="cartItems"></div><div id="cartSummary" class="hidden"><div class="cart-total"><span>Tạm tính</span><span id="cartTotal">0đ</span></div>
+<form id="checkoutForm" style="display:grid;gap:10px;margin:12px 0">
+<h3>Thông tin đặt hàng</h3>
+<label>Họ và tên<input name="customerName" required maxlength="100" autocomplete="name" style="width:100%;padding:10px;border:1px solid #e5ebf3;border-radius:9px"></label>
+<label>Số điện thoại<input name="phone" required inputmode="tel" pattern="[0-9+ .()-]{9,20}" style="width:100%;padding:10px;border:1px solid #e5ebf3;border-radius:9px"></label>
+<label>Hình thức nhận hàng<select name="fulfillment" id="fulfillment" style="width:100%;padding:10px;border:1px solid #e5ebf3;border-radius:9px"><option>Nhận tại cửa hàng</option><option>Giao tận nơi</option></select></label>
+<label id="addressWrap" class="hidden">Địa chỉ giao hàng<input name="address" id="deliveryAddress" maxlength="250" style="width:100%;padding:10px;border:1px solid #e5ebf3;border-radius:9px"></label>
+<label>Ghi chú<textarea name="note" rows="2" maxlength="500" style="width:100%;padding:10px;border:1px solid #e5ebf3;border-radius:9px"></textarea></label>
+<button class="btn btn-primary" id="placeOrder" type="submit" style="width:100%">Gửi đơn hàng</button>
+<p id="checkoutStatus" role="status" style="font-size:12px;color:#68778d">Chưa kết nối máy chủ. Đơn hàng chưa được gửi.</p>
+</form></div></aside>
 <script>
 const products=[
 {name:"Bút bi TL-027",price:5000,cat:"Bút viết",icon:"🖊️",desc:"Bút bi dùng hằng ngày."},
@@ -61,7 +71,7 @@ const money=n=>new Intl.NumberFormat("vi-VN").format(n)+"đ";
 function renderProducts(){let list=products.filter(p=>(category==="Tất cả"||p.cat===category)&&(p.name.toLowerCase().includes(query)||p.cat.toLowerCase().includes(query)));const sort=document.getElementById("sortSelect").value;if(sort==="asc")list.sort((a,b)=>a.price-b.price);if(sort==="desc")list.sort((a,b)=>b.price-a.price);document.getElementById("productCount").textContent=list.length+" sản phẩm";document.getElementById("products").innerHTML=list.map(p=>{const i=products.indexOf(p);return '<article class="product"><div class="product-art"><span class="product-tag">'+p.cat+'</span>'+p.icon+'</div><div class="product-info"><h3>'+p.name+'</h3><p>'+p.desc+'</p><div class="price">'+money(p.price)+'</div><button class="btn btn-light" onclick="addToCart('+i+')">＋ Thêm vào giỏ</button></div></article>'}).join("")||'<div class="empty">Không tìm thấy sản phẩm phù hợp.</div>'}
 function addToCart(i){cart[i]=(cart[i]||0)+1;renderCart();openCart()}
 function changeQty(i,d){cart[i]=(cart[i]||0)+d;if(cart[i]<=0)delete cart[i];renderCart()}
-function renderCart(){const entries=Object.entries(cart);const count=entries.reduce((s,[i,q])=>s+q,0);document.getElementById("cartCount").textContent=count;document.getElementById("cartItems").innerHTML=entries.length?entries.map(([i,q])=>{const p=products[+i];return '<div class="cart-row"><div><b>'+p.name+'</b><br><small>'+money(p.price)+' / món</small><div class="qty"><button onclick="changeQty('+i+',-1)">−</button><span>'+q+'</span><button onclick="changeQty('+i+',1)">＋</button></div></div><b>'+money(p.price*q)+'</b></div>'}).join(""):'<div class="empty"><div style="font-size:45px">🛒</div>Giỏ hàng đang trống.</div>';const total=entries.reduce((s,[i,q])=>s+products[+i].price*q,0);document.getElementById("cartTotal").textContent=money(total);document.getElementById("cartSummary").classList.toggle("hidden",!entries.length)}
+function renderCart(){const entries=Object.entries(cart);const count=entries.reduce((s,[i,q])=>s+q,0);document.getElementById("cartCount").textContent=count;document.getElementById("cartItems").innerHTML=entries.length?entries.map(([i,q])=>{const p=products[+i];return '<div class="cart-row"><div><b>'+p.name+'</b><br><small>'+money(p.price)+' / món</small><div class="qty"><button type="button" onclick="changeQty('+i+',-1)">−</button><span>'+q+'</span><button type="button" onclick="changeQty('+i+',1)">＋</button></div></div><b>'+money(p.price*q)+'</b></div>'}).join(""):'<div class="empty"><div style="font-size:45px">🛒</div>Giỏ hàng đang trống.</div>';const total=entries.reduce((s,[i,q])=>s+products[+i].price*q,0);document.getElementById("cartTotal").textContent=money(total);document.getElementById("cartSummary").classList.toggle("hidden",!entries.length)}
 function openCart(){document.getElementById("overlay").classList.add("show");document.getElementById("drawer").classList.add("show")}
 function closeCart(){document.getElementById("overlay").classList.remove("show");document.getElementById("drawer").classList.remove("show")}
 document.getElementById("categories").addEventListener("click",e=>{const b=e.target.closest("button[data-cat]");if(!b)return;category=b.dataset.cat;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x===b));renderProducts()});
@@ -69,6 +79,22 @@ document.getElementById("searchForm").addEventListener("submit",e=>{e.preventDef
 document.getElementById("searchInput").addEventListener("input",e=>{query=e.target.value.trim().toLowerCase();renderProducts()});
 document.getElementById("sortSelect").addEventListener("change",renderProducts);
 document.getElementById("cartOpen").addEventListener("click",openCart);document.getElementById("cartClose").addEventListener("click",closeCart);document.getElementById("overlay").addEventListener("click",closeCart);
+document.getElementById("fulfillment").addEventListener("change",e=>{const show=e.target.value==="Giao tận nơi";document.getElementById("addressWrap").classList.toggle("hidden",!show);document.getElementById("deliveryAddress").required=show});
+document.getElementById("checkoutForm").addEventListener("submit",async e=>{
+ e.preventDefault();const entries=Object.entries(cart);if(!entries.length)return;
+ const status=document.getElementById("checkoutStatus"),button=document.getElementById("placeOrder");
+ const notebook=entries.some(([i])=>products[+i].name==="Vở 96 trang");
+ const companion=entries.some(([i])=>products[+i].name!=="Vở 96 trang"&&products[+i].price>=5000);
+ if(notebook&&!companion){status.textContent="Vở 96 trang cần mua kèm ít nhất một món khác có giá từ 5.000đ trở lên.";return}
+ const d=new FormData(e.currentTarget),api=(window.MAY_API_URL||"").replace(/\/$/,"");
+ if(!api){status.textContent="Chưa kết nối máy chủ. Đơn chưa được gửi và email chưa được gửi.";return}
+ const order={customerName:d.get("customerName").trim(),phone:d.get("phone").trim(),fulfillment:d.get("fulfillment"),address:d.get("address").trim(),note:d.get("note").trim(),items:entries.map(([productId,quantity])=>({productId:+productId,quantity:+quantity}))};
+ button.disabled=true;button.textContent="Đang gửi...";
+ try{const r=await fetch(api+"/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});const x=await r.json();if(!r.ok)throw Error(x.message||"Không gửi được đơn hàng");status.textContent=x.emailSent?"Đã đặt hàng. Mã đơn: "+x.orderCode+". Email đã gửi đến cửa hàng.":"Đơn đã lưu: "+x.orderCode+". Email chưa gửi được.";cart={};renderCart();e.currentTarget.reset();document.getElementById("addressWrap").classList.add("hidden")}
+ catch(err){status.textContent=err.message||"Lỗi kết nối, đơn chưa được xác nhận."}
+ finally{button.disabled=false;button.textContent="Gửi đơn hàng"}
+});
+
 renderProducts();renderCart();
 </script>
 </body></html>
