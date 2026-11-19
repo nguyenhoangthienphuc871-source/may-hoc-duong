@@ -81,16 +81,16 @@ document.getElementById("sortSelect").addEventListener("change",renderProducts);
 document.getElementById("cartOpen").addEventListener("click",openCart);document.getElementById("cartClose").addEventListener("click",closeCart);document.getElementById("overlay").addEventListener("click",closeCart);
 document.getElementById("fulfillment").addEventListener("change",e=>{const show=e.target.value==="Giao tận nơi";document.getElementById("addressWrap").classList.toggle("hidden",!show);document.getElementById("deliveryAddress").required=show});
 document.getElementById("checkoutForm").addEventListener("submit",async e=>{
- e.preventDefault();const entries=Object.entries(cart);if(!entries.length)return;
+ e.preventDefault();const form=e.currentTarget;const entries=Object.entries(cart);if(!entries.length)return;
  const status=document.getElementById("checkoutStatus"),button=document.getElementById("placeOrder");
  const notebook=entries.some(([i])=>products[+i].name==="Vở 96 trang");
  const companion=entries.some(([i])=>products[+i].name!=="Vở 96 trang"&&products[+i].price>=5000);
  if(notebook&&!companion){status.textContent="Vở 96 trang cần mua kèm ít nhất một món khác có giá từ 5.000đ trở lên.";return}
- const d=new FormData(e.currentTarget),api=(window.MAY_API_URL||"").replace(/\/$/,"");
+ const d=new FormData(form),api=(window.MAY_API_URL||"").replace(/\/$/,"");
  if(!api){status.textContent="Chưa kết nối máy chủ. Đơn chưa được gửi và email chưa được gửi.";return}
  const order={customerName:d.get("customerName").trim(),phone:d.get("phone").trim(),fulfillment:d.get("fulfillment"),address:d.get("address").trim(),note:d.get("note").trim(),items:entries.map(([productId,quantity])=>({productId:+productId,quantity:+quantity}))};
  button.disabled=true;button.textContent="Đang gửi...";
- try{const r=await fetch(api+"/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});const x=await r.json();if(!r.ok)throw Error(x.message||"Không gửi được đơn hàng");status.textContent=x.emailSent?"Đã đặt hàng. Mã đơn: "+x.orderCode+". Email đã gửi đến cửa hàng.":"Đơn đã lưu: "+x.orderCode+". Email chưa gửi được.";cart={};renderCart();e.currentTarget.reset();document.getElementById("addressWrap").classList.add("hidden")}
+ try{const r=await fetch(api+"/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(order)});const x=await r.json();if(!r.ok)throw Error(x.message||"Không gửi được đơn hàng");status.textContent=x.emailSent?"Đã đặt hàng. Mã đơn: "+x.orderCode+". Email đã gửi đến cửa hàng.":"Đơn đã lưu: "+x.orderCode+". Email chưa gửi được.";cart={};renderCart();form.reset();document.getElementById("addressWrap").classList.add("hidden")}
  catch(err){status.textContent=err.message||"Lỗi kết nối, đơn chưa được xác nhận."}
  finally{button.disabled=false;button.textContent="Gửi đơn hàng"}
 });
