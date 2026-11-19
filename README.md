@@ -1,33 +1,36 @@
 # Mây Học Đường
 
-Website giới thiệu cửa hàng học đường, danh mục sản phẩm và dịch vụ.
+Website cửa hàng học đường với giao diện tiếng Việt, danh mục sản phẩm, tìm kiếm, lọc, giỏ hàng và biểu mẫu đặt hàng.
 
-## Chạy thử
-Mở trực tiếp tệp `index.html` bằng trình duyệt hoặc bật GitHub Pages để có đường dẫn công khai.
+## Xem website
 
-## Xuất bản bằng GitHub Pages
-1. Mở **Settings** của repository.
-2. Chọn **Pages** ở thanh bên.
-3. Trong **Build and deployment**, chọn **Deploy from a branch**.
-4. Chọn nhánh **main**, thư mục **/(root)** rồi nhấn **Save**.
-5. Chờ GitHub hoàn tất triển khai. Đường dẫn thường có dạng:
-   `https://nguyenhoangthienphuc871-source.github.io/may-hoc-duong/`
+Sau khi bật GitHub Pages trong **Settings → Pages**, chọn **Deploy from a branch**, nhánh `main`, thư mục `/(root)` rồi nhấn **Save**.
 
-## Tình trạng hiện tại
-Đây là bản giao diện tĩnh để xem trước. Tìm kiếm, lọc sản phẩm và giỏ hàng chạy trong trình duyệt; giỏ hàng không lưu trên máy chủ. Website **chưa** có đăng ký/đăng nhập, cơ sở dữ liệu, quản trị, lưu đơn hàng, gửi email hoặc thanh toán thật. Không dùng bản này để nhận đơn hay thu tiền.
+Đường dẫn website:
+`https://nguyenhoangthienphuc871-source.github.io/may-hoc-duong/`
 
-Các mức giá đang hiển thị theo danh sách ban đầu và cần được chủ cửa hàng xác nhận trước khi bán. Sản phẩm đồ cũ và dịch vụ chưa có giá chưa được tự đặt giá.
+## Tính năng đặt hàng và email
 
-## Lưu ý an toàn
-Không hỗ trợ giao dịch cầm đồ trực tuyến dành cho học sinh/vị thành niên. Nội dung liên quan chỉ được tiếp nhận dưới dạng yêu cầu tư vấn để người lớn có thẩm quyền xem xét.
+Biểu mẫu đặt hàng nằm trong giỏ hàng. Khi được kết nối với API, website gửi thông tin đơn đến máy chủ. Máy chủ kiểm tra dữ liệu, tự tính giá theo danh mục phía máy chủ, lưu đơn vào PostgreSQL rồi gửi email thông báo đến địa chỉ cửa hàng được cấu hình bằng biến `ORDER_EMAIL_TO`.
 
+Email thông báo gồm mã đơn, thông tin khách, hình thức nhận hàng, danh sách sản phẩm, tổng tiền và ghi chú.
 
-## Đặt hàng và thông báo email
+## Cần hoàn tất trước khi nhận đơn thật
 
-Đã thêm biểu mẫu đặt hàng vào giỏ hàng và API Node.js. API xác thực dữ liệu, tự tính giá theo danh mục phía máy chủ, kiểm tra điều kiện mua vở 96 trang, lưu đơn vào PostgreSQL rồi mới gửi email đến `nguyenhoangthienphuc871@gmail.com`. Nếu email lỗi, đơn đã lưu vẫn được giữ và API trả về trạng thái email chưa gửi.
+GitHub Pages chỉ lưu trữ giao diện tĩnh, không chạy được `server.js`. Vì vậy, chức năng đặt hàng và email **chưa hoạt động cho đến khi hoàn tất các bước sau**:
 
-### Cần cấu hình trước khi sử dụng thật
+1. Triển khai `server.js` lên dịch vụ hỗ trợ Node.js (ví dụ Render hoặc Railway).
+2. Tạo cơ sở dữ liệu PostgreSQL và chạy nội dung `schema.sql`.
+3. Cấu hình các biến môi trường theo `.env.example` trên dịch vụ máy chủ.
+4. Với Gmail, bật xác minh 2 bước và tạo Google App Password. Không dùng mật khẩu Gmail thường.
+5. Đặt `window.MAY_API_URL` trong `index.html` thành địa chỉ API đã triển khai.
+6. Kiểm tra API, gửi thử một đơn và xác nhận email đến hộp thư cửa hàng.
 
-GitHub Pages chỉ chạy giao diện tĩnh, không chạy Node.js. Cần triển khai `server.js` trên dịch vụ hỗ trợ Node.js, tạo PostgreSQL và chạy `schema.sql`. Cấu hình các biến trong `.env.example` tại máy chủ. Với Gmail, bật xác minh 2 bước và tạo Google App Password; không dùng mật khẩu Gmail thường và không đưa bí mật lên GitHub.
+Các biến môi trường chứa mật khẩu và thông tin kết nối chỉ được nhập trong phần cài đặt bảo mật của dịch vụ máy chủ. Không đăng chúng lên GitHub hoặc gửi qua tin nhắn.
 
-Cuối cùng, đặt `window.MAY_API_URL` thành URL máy chủ API trong `index.html`. Khi chưa cấu hình API, biểu mẫu sẽ báo rõ rằng đơn chưa được gửi. Mã nguồn đã được thêm vào repository nhưng backend/email chưa được triển khai và kiểm thử thực tế.
+## Lưu ý
+
+- Khi chưa cấu hình API, website sẽ báo rõ đơn chưa được gửi.
+- Khi máy chủ lưu được đơn nhưng email gặp lỗi, đơn vẫn được giữ trong cơ sở dữ liệu và website thông báo email chưa gửi được.
+- Giá sản phẩm cần được chủ cửa hàng xác nhận trước khi kinh doanh.
+- Không hỗ trợ học sinh tự đăng tài sản hoặc thực hiện giao dịch cầm đồ trực tuyến.
