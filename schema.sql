@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS orders (
+id BIGSERIAL PRIMARY KEY, order_code VARCHAR(32) UNIQUE NOT NULL,
+customer_name VARCHAR(100) NOT NULL, phone VARCHAR(20) NOT NULL,
+fulfillment VARCHAR(30) NOT NULL, address VARCHAR(250) NOT NULL DEFAULT '',
+note VARCHAR(500) NOT NULL DEFAULT '', items JSONB NOT NULL,
+total_vnd BIGINT NOT NULL CHECK(total_vnd>=0),
+status VARCHAR(30) NOT NULL DEFAULT 'cho_xac_nhan', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS orders_created_at_idx ON orders(created_at DESC);
